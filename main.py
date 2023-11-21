@@ -1,7 +1,7 @@
 from sklearn.feature_extraction.text import TfidfVectorizer
 import pandas as pd
 import contractions
-from flask import Flask
+from flask import Flask,jsonify
 
 
 app = Flask(__name__)
@@ -65,7 +65,11 @@ def hello() -> str:
     df_tfidf = df_tfidf.sort_values(by = 'Doc0', ascending = False)
     df_tfidf = df_tfidf.head(15)
 
-    return df_tfidf
+   
+    response = jsonify(df_tfidf.to_dict())
+    response.status_code = 200  # You can set the status code that you prefer
+    return response
+
 
 
 if __name__ == "__main__":
