@@ -1,18 +1,24 @@
 from sklearn.feature_extraction.text import TfidfVectorizer
 import pandas as pd
 import contractions
-from flask import Flask,jsonify
-
+from flask import Flask,request,jsonify
 
 app = Flask(__name__)
 
+@app.route('/')
+def home():
+    return "Flask app is running!"
 
-@app.route("/")
-def hello() -> str:
+@app.route('/analyze',methods = ['POST'])
 
+def analyze_text():
+    data = request.get_json()
+    email_text = data.get('email_text')
 
-    #document0 = input("Enter emails: ")
-    document0 = "testing on advik sachdeva"
+    if not email_text:
+        document0 = "Emails were not parsed correctly"
+    else:
+        document0 = email_text
     document1 = 'Subject: Meeting Request for Project Kickoff Dear [Recipient\'s Name], I hope this email finds you well. I would like to request a meeting to discuss the upcoming project kickoff. Our team has made significant progress in the planning phase, and it is crucial that we align on the next steps and assign responsibilities. Are you available for a meeting on [Proposed Date and Time]? Please let me know your availability, and I will send out a calendar invite. Best regards,[Your Name]'
     document2 = 'Subject: Project Status Update - Milestone Achieved Dear [Recipient\'s Name], I wanted to inform you that we have successfully achieved a major milestone in our project. Our team worked diligently to meet the deadline, and I am pleased to share the details in the attached report. Please review the document and let me know if you have any questions or require further information. Regards, [Your Name]'
     document3 = 'Subject: Job Offer for [Position] Dear [Candidate\'s Name], We are delighted to extend an offer for the [Position] role at [Company Name]. We were thoroughly impressed with your qualifications and believe you will be a valuable addition to our team. Please find the attached offer letter with details about compensation, benefits, and other important information. We look forward to your positive response. Best regards, [Your Name]'
@@ -64,16 +70,7 @@ def hello() -> str:
     df_tfidf = df_tfidf[df_tfidf['Doc0'] > 0.0]
     df_tfidf = df_tfidf.sort_values(by = 'Doc0', ascending = False)
     df_tfidf = df_tfidf.head(15)
-
-   
-    response = jsonify(df_tfidf.to_dict())
-    response.status_code = 200  # You can set the status code that you prefer
-    return response
-
-
-
-if __name__ == "__main__":
-    # This is used when running locally only. When deploying to Google App
-    # Engine, a webserver process such as Gunicorn will serve the app.
-    app.run(host="127.0.0.1", port=8080, debug=True)
-# [END gae_flex_quickstart]
+    
+    return jsonify(df_tfidf.to_dict())
+if __name__ == '__main__':
+    app.run(host="127.0.0.1", port=8081, debug=True)
